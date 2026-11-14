@@ -9,7 +9,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ activeCategory, onSelectCategory }) => {
-  const { stage, goHome, setSearchOpen, setHistoryOpen, history, openToolExecute } = useWorkspace();
+  const { stage, selectedTool, goHome, setSearchOpen, setHistoryOpen, history, openToolExecute } = useWorkspace();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const navItems: Array<{ id: ToolCategoryId | 'all'; label: string }> = [
@@ -19,6 +19,8 @@ export const Header: React.FC<HeaderProps> = ({ activeCategory, onSelectCategory
     { id: 'audio-video', label: 'Audio & Video' },
     { id: 'design', label: 'Design & Studio' },
   ];
+
+  const isConvertStudioActive = stage === 'execute' && selectedTool?.workspaceType === 'convert';
 
   const handleNavClick = (id: ToolCategoryId | 'all') => {
     onSelectCategory(id);
@@ -68,6 +70,17 @@ export const Header: React.FC<HeaderProps> = ({ activeCategory, onSelectCategory
               </button>
             );
           })}
+          <button
+            type="button"
+            onClick={() => openToolExecute('convert-anything')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              isConvertStudioActive
+                ? 'bg-white text-[#1D4ED8] shadow-xs border border-[#E2E5EC]/70 font-semibold'
+                : 'text-[#1D4ED8] hover:bg-white/70'
+            }`}
+          >
+            Convert
+          </button>
         </nav>
 
         {/* Right Utility Controls */}
@@ -141,6 +154,16 @@ export const Header: React.FC<HeaderProps> = ({ activeCategory, onSelectCategory
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                openToolExecute('convert-anything');
+              }}
+              className="px-3 py-1.5 text-xs font-semibold rounded-md border bg-[#EFF6FF] text-[#1D4ED8] border-[#1D4ED8]/30 cursor-pointer"
+            >
+              Convert Anything
+            </button>
           </div>
           <div className="pt-1 flex gap-2">
             <button

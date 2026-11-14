@@ -103,6 +103,85 @@ export async function renderSinglePdfPageCanvas(
   }
 }
 
+export async function renderPdfPagesToImageBlobs(
+  file: File,
+  options: {
+    targetFormat: 'png' | 'jpg' | 'webp';
+    dpi: number;
+    quality: number;
+    pageRange?: string;
+    signal?: AbortSignal;
+    onProgress?: (pct: number, stepLabel: string) => void;
+  }
+): Promise<Array<{ name: string; bytes: Uint8Array; blob: Blob }>> {
+  const buffer = await file.arrayBuffer();
+  const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
+  try {
+    const pdfDoc = await loadingTask.promise;
+    const indices = options.pageRange?.trim()
+      ? parsePageRangeExpression(options.pageRange, pdfDoc.numPages)
+      : pdfDoc.numPages > 0
+      ? Array.from({ length: pdfDoc.numPages }, (_, i) => i)
+      : [];
+
+    if (indices.length === 0) {
+      throw new Error(
+        `No valid pages matched "${options.pageRange || ''}" (document has ${pdfDoc.numPages} pages).`
+      );
+    }
+
+    const scale = options.dpi / 72;
+    const rendered: Array<{ name: string; bytes: Uint8Array; blob: Blob }> = [];
+    const base = file.name.replace(/\.pdf$/i, '');
+    const mime =
+      options.targetFormat === 'jpg'
+        ? 'image/jpeg'
+        : options.targetFormat === 'webp'
+        ? 'image/webp'
+        : 'image/png';
+    const qualityArg =
+      mime === 'image/png' ? undefined : Math.max(0.2, Math.min(1, options.quality / 100));
+
+    for (let k = 0; k < indices.length; k++) {
+      if (options.signal?.aborted) {
+        throw new Error('Conversion cancelled by user.');
+      }
+      const pageNum = indices[k] + 1;
+      options.onProgress?.(
+        20 + Math.round(((k + 1) / indices.length) * 65),
+        `Rendering PDF page ${pageNum} at ${options.dpi} DPI…`
+      );
+      const page = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.floor(viewport.width));
+      canvas.height = Math.max(1, Math.floor(viewport.height));
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas 2D unavailable');
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+
+      const imgBlob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (b) => (b ? resolve(b) : reject(new Error(`Failed to encode ${mime}`))),
+          mime,
+          qualityArg
+        );
+      });
+      rendered.push({
+        name: `${base}_page_${pageNum}.${options.targetFormat}`,
+        bytes: new Uint8Array(await imgBlob.arrayBuffer()),
+        blob: imgBlob,
+      });
+    }
+
+    return rendered;
+  } finally {
+    await loadingTask.destroy().catch(() => {});
+  }
+}
+
 export async function extractPdfText(file: File): Promise<{ pageNumber: number; text: string }[]> {
   const buffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });

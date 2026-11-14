@@ -1,4 +1,5 @@
 export type ToolCategoryId =
+  | 'convert'
   | 'pdf'
   | 'image'
   | 'audio-video'
@@ -11,6 +12,7 @@ export type ToolCategoryId =
   | 'ai-batch';
 
 export type WorkspaceType =
+  | 'convert'
   | 'image'
   | 'pdf'
   | 'audio'

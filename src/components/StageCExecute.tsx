@@ -2,6 +2,9 @@ import React, { Suspense, lazy } from 'react';
 import { useWorkspace } from '../state/workspaceStore';
 
 // Lazy-load specialized studios so homepage stays fast and processing engines load on demand
+const ConvertStudio = lazy(() =>
+  import('./studios/ConvertStudio').then((m) => ({ default: m.ConvertStudio }))
+);
 const ImageStudio = lazy(() =>
   import('./studios/ImageStudio').then((m) => ({ default: m.ImageStudio }))
 );
@@ -53,6 +56,8 @@ export const StageCExecute: React.FC = () => {
 
   const renderStudio = () => {
     switch (selectedTool.workspaceType) {
+      case 'convert':
+        return <ConvertStudio />;
       case 'image':
         return <ImageStudio />;
       case 'pdf':

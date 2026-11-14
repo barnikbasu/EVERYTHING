@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import {
+  ArrowLeftRight,
   Upload,
   ClipboardPaste,
   ShieldCheck,
@@ -30,6 +31,7 @@ interface StageADiscoverProps {
 }
 
 const ORDERED_CATEGORIES: ToolCategoryId[] = [
+  'convert',
   'pdf',
   'image',
   'audio-video',
@@ -155,6 +157,14 @@ export const StageADiscover: React.FC<StageADiscoverProps> = ({
                 >
                   <Upload className="w-4 h-4" />
                   <span>Select Local File</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openToolExecute('convert-anything')}
+                  className="h-10 px-4 bg-white hover:bg-[#F6F7F9] text-[#17191D] border border-[#E2E5EC] text-xs font-semibold rounded-lg inline-flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                >
+                  <ArrowLeftRight className="w-4 h-4 text-[#1D4ED8]" />
+                  <span>Convert Anything</span>
                 </button>
                 <button
                   type="button"

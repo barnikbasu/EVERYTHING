@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ArrowLeftRight,
   AudioLines,
   Binary,
   Braces,
@@ -26,6 +27,7 @@ import {
   PenTool,
   Pipette,
   QrCode,
+  RefreshCw,
   ScanText,
   Scissors,
   ShieldAlert,
@@ -33,11 +35,13 @@ import {
   SlidersHorizontal,
   Sparkles,
   Table2,
+  TableProperties,
   Terminal,
   Wrench,
 } from 'lucide-react';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  ArrowLeftRight,
   AudioLines,
   Binary,
   Braces,
@@ -64,6 +68,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   PenTool,
   Pipette,
   QrCode,
+  RefreshCw,
   ScanText,
   Scissors,
   ShieldAlert,
@@ -71,6 +76,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   SlidersHorizontal,
   Sparkles,
   Table2,
+  TableProperties,
   Terminal,
 };
 

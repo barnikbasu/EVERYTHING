@@ -1,6 +1,14 @@
 import type { CategoryMeta, ToolCategoryId, ToolDefinition } from '../types/workspace';
 
 export const CATEGORY_META: Record<ToolCategoryId, CategoryMeta> = {
+  convert: {
+    id: 'convert',
+    label: 'Universal File Converter',
+    shortLabel: 'Convert',
+    primaryColor: '#1D4ED8',
+    lightTint: '#EFF6FF',
+    description: 'Signature-based conversion across images, documents, audio, video, archives, and structured data.',
+  },
   pdf: {
     id: 'pdf',
     label: 'PDF & Documents',
@@ -84,6 +92,40 @@ export const CATEGORY_META: Record<ToolCategoryId, CategoryMeta> = {
 };
 
 export const TOOL_REGISTRY: ToolDefinition[] = [
+  // ===================== UNIVERSAL CONVERTER =====================
+  {
+    id: 'convert-anything',
+    name: 'Convert Anything',
+    category: 'convert',
+    categoryLabel: 'Universal File Converter',
+    description: 'Detect true file signatures and convert images, docs, audio, video, archives & structured data locally',
+    shortSpecLeft: '6 Categories',
+    shortSpecRight: 'Batch + Matrix',
+    acceptedExtensions: [
+      'jpg', 'jpeg', 'png', 'webp', 'avif', 'bmp', 'gif', 'svg', 'ico',
+      'pdf', 'docx', 'rtf', 'txt', 'md', 'html', 'xlsx', 'csv', 'tsv',
+      'json', 'yaml', 'yml', 'xml', 'zip', 'tar', 'gz', 'tar.gz', 'tgz',
+      'wav', 'mp3', 'ogg', 'flac', 'm4a', 'aac', 'opus', 'mp4', 'webm', 'mov', '*',
+    ],
+    acceptedMimePrefixes: ['image/', 'application/pdf', 'audio/', 'video/', 'text/', 'application/'],
+    outputFormats: ['PNG', 'WebP', 'PDF', 'ZIP', 'TAR.GZ', 'JSON', 'YAML', 'CSV', 'WAV', 'WebM', 'GIF'],
+    engineName: 'Multi-Engine Registry',
+    processingMode: 'local',
+    status: 'implemented',
+    workspaceType: 'convert',
+    supportsMultiple: true,
+    requiresFile: false,
+    maxRecommendedSizeMB: 250,
+    iconName: 'ArrowLeftRight',
+    keywords: [
+      'convert', 'converter', 'transcode', 'format', 'json to yaml', 'yaml to json',
+      'csv to json', 'xml to json', 'xlsx to csv', 'docx to pdf', 'png to webp',
+      'pdf to png', 'zip to tar', 'tar.gz', 'bmp', 'ico', 'gif', 'wav', 'webm',
+    ],
+    popular: true,
+    limitationsNote: 'Runs 100% locally in browser memory. Targets unavailable in browser codecs (HEIC, TIFF, PPTX, MP3 encode, MP4 encode) are clearly documented in the Compatibility Matrix.',
+  },
+
   // ===================== A. PDF & DOCUMENTS =====================
   {
     id: 'pdf-merge',
@@ -881,6 +923,7 @@ export interface WorkspaceStudioNavItem {
 }
 
 export const WORKSPACE_STUDIOS: WorkspaceStudioNavItem[] = [
+  { id: 'convert-anything', workspaceType: 'convert', label: 'Convert Anything', shortLabel: 'Convert Studio', color: '#1D4ED8', iconName: 'ArrowLeftRight' },
   { id: 'image-remove-bg', workspaceType: 'image', label: 'Image & Cutout', shortLabel: 'Image Studio', color: '#0D9488', iconName: 'Sparkles' },
   { id: 'pdf-organize', workspaceType: 'pdf', label: 'PDF & Document Lab', shortLabel: 'PDF Studio', color: '#E5322D', iconName: 'FileStack' },
   { id: 'audio-studio', workspaceType: 'audio', label: 'Audio Studio', shortLabel: 'Audio Studio', color: '#D97706', iconName: 'AudioLines' },
@@ -942,14 +985,14 @@ export function detectFilesRouting(files: File[]): FileRoutingResult {
       primaryToolId: files.length > 1 ? 'pdf-merge' : 'pdf-compress',
       recommendedToolIds:
         files.length > 1
-          ? ['pdf-merge', 'pdf-compress', 'pdf-split', 'ocr-extract']
-          : ['pdf-compress', 'pdf-organize', 'pdf-split', 'pdf-sign-annotate', 'pdf-redact', 'ocr-extract'],
+          ? ['pdf-merge', 'convert-anything', 'pdf-compress', 'pdf-split', 'ocr-extract']
+          : ['pdf-compress', 'convert-anything', 'pdf-organize', 'pdf-split', 'pdf-sign-annotate', 'ocr-extract'],
     };
   }
 
   const allImage = exts.every(
     (e, i) =>
-      ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg'].includes(e) || mimes[i].startsWith('image/')
+      ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg', 'ico', 'avif'].includes(e) || mimes[i].startsWith('image/')
   );
   if (allImage) {
     if (exts.every((e) => e === 'svg')) {
@@ -957,7 +1000,7 @@ export function detectFilesRouting(files: File[]): FileRoutingResult {
         detectedKind: 'code',
         label: 'SVG Vector Graphic',
         primaryToolId: 'dev-regex-diff-svg',
-        recommendedToolIds: ['dev-regex-diff-svg', 'design-qr-favicon', 'batch-lab'],
+        recommendedToolIds: ['dev-regex-diff-svg', 'convert-anything', 'design-qr-favicon', 'batch-lab'],
       };
     }
     return {
@@ -966,21 +1009,21 @@ export function detectFilesRouting(files: File[]): FileRoutingResult {
       primaryToolId: files.length > 1 ? 'batch-lab' : 'image-remove-bg',
       recommendedToolIds:
         files.length > 1
-          ? ['batch-lab', 'pdf-images-to-pdf', 'image-compress']
-          : ['image-remove-bg', 'image-compress', 'image-crop-resize', 'image-filters-tone', 'ocr-extract', 'privacy-metadata'],
+          ? ['batch-lab', 'convert-anything', 'pdf-images-to-pdf', 'image-compress']
+          : ['image-remove-bg', 'convert-anything', 'image-compress', 'image-crop-resize', 'ocr-extract', 'privacy-metadata'],
     };
   }
 
   const allAudio = exts.every(
     (e, i) =>
-      ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'].includes(e) || mimes[i].startsWith('audio/')
+      ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'opus'].includes(e) || mimes[i].startsWith('audio/')
   );
   if (allAudio) {
     return {
       detectedKind: 'audio',
       label: files.length > 1 ? `${files.length} Audio tracks` : 'Audio Track',
       primaryToolId: 'audio-studio',
-      recommendedToolIds: ['audio-studio', 'privacy-passwords-hash', 'office-zip'],
+      recommendedToolIds: ['audio-studio', 'convert-anything', 'privacy-passwords-hash', 'office-zip'],
     };
   }
 
@@ -992,7 +1035,7 @@ export function detectFilesRouting(files: File[]): FileRoutingResult {
       detectedKind: 'video',
       label: 'Video File',
       primaryToolId: 'video-trim-edit',
-      recommendedToolIds: ['video-trim-edit', 'video-to-gif', 'privacy-passwords-hash'],
+      recommendedToolIds: ['video-trim-edit', 'convert-anything', 'video-to-gif', 'privacy-passwords-hash'],
     };
   }
 
@@ -1002,7 +1045,7 @@ export function detectFilesRouting(files: File[]): FileRoutingResult {
       detectedKind: 'spreadsheet',
       label: 'Spreadsheet / CSV Data',
       primaryToolId: 'office-spreadsheet',
-      recommendedToolIds: ['office-spreadsheet', 'doc-compare-assist', 'office-zip'],
+      recommendedToolIds: ['office-spreadsheet', 'convert-anything', 'doc-compare-assist', 'office-zip'],
     };
   }
 
@@ -1012,27 +1055,27 @@ export function detectFilesRouting(files: File[]): FileRoutingResult {
       detectedKind: 'document',
       label: 'Document / Text File',
       primaryToolId: 'office-docx-reader',
-      recommendedToolIds: ['office-docx-reader', 'doc-compare-assist', 'dev-formatters'],
+      recommendedToolIds: ['office-docx-reader', 'convert-anything', 'doc-compare-assist', 'dev-formatters'],
     };
   }
 
-  const allZip = exts.every((e) => e === 'zip');
-  if (allZip) {
+  const allArchive = exts.every((e) => ['zip', 'tar', 'gz', 'tgz'].includes(e)) || files.every((f) => f.name.toLowerCase().endsWith('.tar.gz'));
+  if (allArchive) {
     return {
       detectedKind: 'archive',
-      label: 'ZIP Archive',
-      primaryToolId: 'office-zip',
-      recommendedToolIds: ['office-zip', 'privacy-metadata', 'privacy-passwords-hash'],
+      label: 'Archive File',
+      primaryToolId: 'convert-anything',
+      recommendedToolIds: ['convert-anything', 'office-zip', 'privacy-metadata', 'privacy-passwords-hash'],
     };
   }
 
-  const allCode = exts.every((e) => ['json', 'xml', 'html', 'css', 'js', 'ts'].includes(e));
+  const allCode = exts.every((e) => ['json', 'yaml', 'yml', 'xml', 'html', 'css', 'js', 'ts'].includes(e));
   if (allCode) {
     return {
       detectedKind: 'code',
       label: 'Code / Structured Data',
       primaryToolId: 'dev-formatters',
-      recommendedToolIds: ['dev-formatters', 'dev-regex-diff-svg', 'dev-encoding-crypto'],
+      recommendedToolIds: ['dev-formatters', 'convert-anything', 'dev-regex-diff-svg', 'dev-encoding-crypto'],
     };
   }
 
@@ -1040,6 +1083,6 @@ export function detectFilesRouting(files: File[]): FileRoutingResult {
     detectedKind: 'unknown',
     label: `${files.length} Mixed File${files.length > 1 ? 's' : ''}`,
     primaryToolId: 'batch-lab',
-    recommendedToolIds: ['batch-lab', 'office-zip', 'privacy-metadata', 'ai-command'],
+    recommendedToolIds: ['batch-lab', 'convert-anything', 'office-zip', 'privacy-metadata', 'ai-command'],
   };
 }
