@@ -1,0 +1,6 @@
+{
+  "name": "EVERYTHING",
+  "description": "Everything you need. One workspace. Privacy-first local file processing, document, media, creative, developer, and AI command workspace.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
