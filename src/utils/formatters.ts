@@ -1,4 +1,5 @@
 import type { ToolDefinition } from '../types/workspace';
+import { sanitizeDownloadFilename } from './sanitize';
 
 export function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
@@ -35,7 +36,7 @@ export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = filename;
+  a.download = sanitizeDownloadFilename(filename, 'export');
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -59,6 +60,11 @@ export function validateFilesForTool(
     const ext = file.name.split('.').pop()?.toLowerCase() || '';
     const mime = file.type.toLowerCase();
     const maxBytes = tool.maxRecommendedSizeMB * 1024 * 1024;
+
+    if (file.size === 0) {
+      errors.push(`"${file.name}" is empty (0 B). Please select a non-empty file.`);
+      continue;
+    }
 
     if (file.size > maxBytes) {
       errors.push(

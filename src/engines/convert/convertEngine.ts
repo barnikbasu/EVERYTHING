@@ -11,6 +11,7 @@ import {
   encodeBmpRgba,
   encodeIcoFromPngBuffers,
   extractLargestFrameFromIco,
+  writeZipEntries,
 } from './binaryCodecs';
 import {
   htmlToMarkdownUniversal,
@@ -407,7 +408,6 @@ export async function executeFileConversion(
         outBlob = rendered[0].blob;
         previewKind = 'image';
       } else {
-        const { writeZipEntries } = await import('./binaryCodecs');
         const zipBytes = await writeZipEntries(
           rendered.map((r) => ({ path: r.name, data: r.bytes }))
         );

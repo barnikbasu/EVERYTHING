@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
 import JSZip from 'jszip';
+import { sanitizeArchivePath } from '../utils/sanitize';
 
 export interface SpreadsheetData {
   sheetNames: string[];
@@ -9,6 +10,7 @@ export interface SpreadsheetData {
 
 export interface ZipEntryInfo {
   path: string;
+  rawPath: string;
   dir: boolean;
   uncompressedSize: number;
   compressedSize: number;
@@ -271,7 +273,8 @@ export async function inspectZipFile(file: File): Promise<{
       _data?: { uncompressedSize?: number; compressedSize?: number };
     };
     entries.push({
-      path: relativePath,
+      path: sanitizeArchivePath(relativePath),
+      rawPath: relativePath,
       dir: entry.dir,
       uncompressedSize: internal._data?.uncompressedSize ?? 0,
       compressedSize: internal._data?.compressedSize ?? 0,
@@ -288,7 +291,7 @@ export async function createZipFromFiles(
 ): Promise<Blob> {
   const zip = new JSZip();
   for (const item of files) {
-    zip.file(item.name, item.data);
+    zip.file(sanitizeArchivePath(item.name), item.data);
   }
   return zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
 }

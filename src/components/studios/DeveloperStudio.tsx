@@ -185,6 +185,17 @@ export const DeveloperStudio: React.FC = () => {
     [regexPattern, regexFlags, regexSample]
   );
   const svgResult = useMemo(() => optimizeSvgMarkup(svgInput), [svgInput]);
+  const [svgPreviewUrl, setSvgPreviewUrl] = useState<string>('');
+  useEffect(() => {
+    if (svgResult.error || !svgResult.optimized) {
+      setSvgPreviewUrl('');
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([svgResult.optimized], { type: 'image/svg+xml;charset=utf-8' }));
+    setSvgPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [svgResult.error, svgResult.optimized]);
+
   const diffChunks = useMemo(() => computeTextDiff(diffA, diffB), [diffA, diffB]);
   const mdHtml = useMemo(() => renderSafeMarkdownHtml(mdInput), [mdInput]);
 
@@ -631,11 +642,14 @@ export const DeveloperStudio: React.FC = () => {
 
             <div className="bg-white border border-[#E2E5EC] rounded-xl p-4 flex flex-col items-center justify-center">
               <p className="text-xs font-semibold text-[#717782] mb-3 self-start">Live SVG Render</p>
-              {!svgResult.error && (
-                <div
-                  className="w-56 h-56 checkerboard-bg border border-[#E2E5EC] rounded-lg p-4 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full"
-                  dangerouslySetInnerHTML={{ __html: svgResult.optimized }}
-                />
+              {!svgResult.error && svgPreviewUrl && (
+                <div className="w-56 h-56 checkerboard-bg border border-[#E2E5EC] rounded-lg p-4 flex items-center justify-center">
+                  <img
+                    src={svgPreviewUrl}
+                    alt="Sanitized SVG vector preview"
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
               )}
             </div>
           </div>

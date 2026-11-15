@@ -234,6 +234,14 @@ export const ConvertStudio: React.FC = () => {
     setPreviewUrl(null);
   }, [activeItem?.result?.blob, activeItem?.result?.previewKind]);
 
+  // Abort active conversions cleanly on unmount
+  useEffect(() => {
+    const controllers = abortControllersRef.current;
+    return () => {
+      Object.values(controllers).forEach((c) => c.abort());
+    };
+  }, []);
+
   const activeSourceFormat: ConvertFormatId | 'unknown' = activeItem?.detected?.format ?? 'unknown';
   const availableTargets = useMemo(
     () => getSupportedTargetsForSource(activeSourceFormat, caps, false),

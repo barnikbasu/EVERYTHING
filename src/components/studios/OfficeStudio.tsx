@@ -16,6 +16,7 @@ import {
   type ZipEntryInfo,
 } from '../../engines/officeEngine';
 import { downloadBlob, formatBytes, replaceFileExtension } from '../../utils/formatters';
+import { escapeHtml, sanitizeArchivePath, sanitizeDownloadFilename, sanitizeHtmlMarkup } from '../../utils/sanitize';
 import JSZip from 'jszip';
 
 const OFFICE_RAIL_TABS: StudioRailTab[] = [
@@ -74,6 +75,10 @@ export const OfficeStudio: React.FC = () => {
       return;
     }
     const ext = activeFile.name.split('.').pop()?.toLowerCase() || '';
+    if (activeFile.size === 0) {
+      setErrorMsg(`"${activeFile.name}" is empty (0 B). Please upload a valid non-empty file.`);
+      return;
+    }
     setErrorMsg(null);
     let cancelled = false;
 
@@ -110,19 +115,19 @@ export const OfficeStudio: React.FC = () => {
           if (ext === 'docx') {
             const res = await readDocxFile(activeFile);
             if (cancelled) return;
-            setDocHtml(res.html);
+            setDocHtml(sanitizeHtmlMarkup(res.html));
             setDocText(res.plainText);
           } else if (ext === 'rtf') {
             const rawRtf = await activeFile.text();
             if (cancelled) return;
             const parsed = parseRtfText(rawRtf);
             setDocText(parsed);
-            setDocHtml(`<pre class="whitespace-pre-wrap text-sm">${parsed.replace(/</g, '&lt;')}</pre>`);
+            setDocHtml(`<pre class="whitespace-pre-wrap text-sm">${escapeHtml(parsed)}</pre>`);
           } else {
             const txt = await activeFile.text();
             if (cancelled) return;
             setDocText(txt);
-            setDocHtml(`<pre class="whitespace-pre-wrap text-sm">${txt.replace(/</g, '&lt;')}</pre>`);
+            setDocHtml(`<pre class="whitespace-pre-wrap text-sm">${escapeHtml(txt)}</pre>`);
           }
         } catch (err) {
           if (!cancelled) {
@@ -191,9 +196,9 @@ export const OfficeStudio: React.FC = () => {
       } else if (activeTab === 'docx' && docText) {
         const content =
           docExportFmt === 'html'
-            ? docHtml
+            ? sanitizeHtmlMarkup(docHtml)
             : docExportFmt === 'md'
-            ? htmlToSimpleMarkdown(docHtml) || docText
+            ? htmlToSimpleMarkdown(sanitizeHtmlMarkup(docHtml)) || docText
             : docText;
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const outName = replaceFileExtension(activeFile?.name || 'document', docExportFmt);
@@ -217,7 +222,7 @@ export const OfficeStudio: React.FC = () => {
           const repacked = await JSZip.loadAsync(buf);
           const extraFiles = files.filter((f) => f.file !== activeFile);
           for (const item of extraFiles) {
-            repacked.file(item.name, item.file);
+            repacked.file(sanitizeArchivePath(item.name), item.file);
           }
           blob = await repacked.generateAsync({
             type: 'blob',
@@ -558,10 +563,10 @@ export const OfficeStudio: React.FC = () => {
                             type="button"
                             onClick={async () => {
                               try {
-                                const f = zipInstance.file(entry.path);
+                                const f = zipInstance.file(entry.rawPath || entry.path);
                                 if (!f) return;
                                 const blob = await f.async('blob');
-                                downloadBlob(blob, entry.path.split('/').pop() || 'extracted');
+                                downloadBlob(blob, sanitizeDownloadFilename(entry.path.split('/').pop() || 'extracted'));
                               } catch (err) {
                                 setErrorMsg(err instanceof Error ? err.message : 'Failed to extract ZIP entry.');
                               }

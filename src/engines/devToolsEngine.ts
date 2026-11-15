@@ -454,17 +454,30 @@ export function optimizeSvgMarkup(svg: string): {
       };
     }
 
-    // Strip executable nodes and inline event/javascript: attributes
-    doc.querySelectorAll('script, foreignObject').forEach((node) => node.remove());
+    // Strip executable/embedded nodes, SMIL animation event triggers, and inline event/unsafe URI attributes
+    doc
+      .querySelectorAll('script, foreignObject, iframe, object, embed, animate, set, animateMotion, animateTransform')
+      .forEach((node) => node.remove());
+    doc.querySelectorAll('style').forEach((styleNode) => {
+      const rawCss = styleNode.textContent || '';
+      styleNode.textContent = rawCss
+        .replace(/@import[^;]*;?/gi, '')
+        .replace(/url\(\s*['"]?\s*(?:https?:|javascript:|vbscript:|data:text\/html)[^)]*\)/gi, 'none');
+    });
     doc.querySelectorAll('*').forEach((el) => {
       for (const attr of Array.from(el.attributes)) {
         const name = attr.name.toLowerCase();
-        const val = attr.value.trim().toLowerCase();
+        const val = attr.value.replace(/[\u0000-\u0020]+/g, '').toLowerCase();
         if (
           name.startsWith('on') ||
           name === 'data-name' ||
           name === 'sketch:type' ||
-          ((name === 'href' || name === 'xlink:href') && val.startsWith('javascript:'))
+          ((name === 'href' || name === 'xlink:href' || name === 'src') &&
+            (val.startsWith('javascript:') ||
+              val.startsWith('vbscript:') ||
+              val.startsWith('data:text/html') ||
+              val.startsWith('http://') ||
+              val.startsWith('https://')))
         ) {
           el.removeAttribute(attr.name);
         }

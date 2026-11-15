@@ -15,7 +15,6 @@ import { SAMPLE_IMAGE_ASSETS } from '../assets/samples';
 import { urlToFile, validateFilesForTool } from '../utils/formatters';
 import { readSupportedClipboardFiles } from '../utils/clipboard';
 import { useClipboardFilePaste } from '../hooks/useClipboardFilePaste';
-import { computeCutoutAlphaMask, loadImageCanvas } from '../engines/imageEngine';
 import { StudioNotice } from './StudioFeedback';
 
 export const StageBPrepare: React.FC = () => {
@@ -45,7 +44,10 @@ export const StageBPrepare: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
-        const sample = SAMPLE_IMAGE_ASSETS[0];
+        const [{ computeCutoutAlphaMask, loadImageCanvas }, sample] = await Promise.all([
+          import('../engines/imageEngine'),
+          Promise.resolve(SAMPLE_IMAGE_ASSETS[0]),
+        ]);
         const file = await urlToFile(sample.url, sample.filename, 'image/jpeg');
         const { canvas } = await loadImageCanvas(file);
         if (cancelled) return;

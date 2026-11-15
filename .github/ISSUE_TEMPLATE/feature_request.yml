@@ -1,0 +1,17 @@
+name: Feature Request
+description: Propose a new local-first tool, format conversion, or UX improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Use Case / Problem Statement
+      placeholder: Describe the workflow or file format you need supported locally.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Local Workflow
+      placeholder: How should it work inside Stage A / Stage B / Stage C?

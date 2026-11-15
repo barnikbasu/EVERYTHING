@@ -36,7 +36,40 @@ function checkRateLimit(ip: string, maxPerMinute = 20): boolean {
 
 export function createApp(): express.Express {
   const app = express();
+
+  app.disable('x-powered-by');
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), geolocation=(), payment=(), usb=()');
+    if (isProduction) {
+      res.setHeader(
+        'Content-Security-Policy',
+        [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          "font-src 'self' data: https://fonts.gstatic.com",
+          "img-src 'self' data: blob:",
+          "media-src 'self' data: blob:",
+          "worker-src 'self' blob:",
+          "connect-src 'self' data: blob: https://cdn.jsdelivr.net https://tessdata.projectnaptha.com",
+          "object-src 'none'",
+          "base-uri 'self'",
+        ].join('; ')
+      );
+    }
+    next();
+  });
+
   app.use(express.json({ limit: '4mb' }));
+  app.use((err: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (err instanceof SyntaxError && 'body' in err) {
+      res.status(400).json({ error: 'Invalid JSON request payload.' });
+      return;
+    }
+    next(err);
+  });
 
   app.get('/api/health', (_req, res) => {
     const configured = isCloudAiConfigured();

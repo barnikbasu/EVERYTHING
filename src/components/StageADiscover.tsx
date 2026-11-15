@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeftRight,
   Upload,
@@ -24,6 +24,10 @@ import { ToolIcon } from './ToolIcon';
 import { formatBytes } from '../utils/formatters';
 import { readSupportedClipboardFiles } from '../utils/clipboard';
 import { useClipboardFilePaste } from '../hooks/useClipboardFilePaste';
+
+const FeedbackModal = lazy(() =>
+  import('./FeedbackModal').then((m) => ({ default: m.FeedbackModal }))
+);
 
 interface StageADiscoverProps {
   activeCategory: ToolCategoryId | 'all';
@@ -55,6 +59,7 @@ export const StageADiscover: React.FC<StageADiscoverProps> = ({
   const [sortMode, setSortMode] = useState<'popular' | 'alpha' | 'all'>('popular');
   const [localFilter, setLocalFilter] = useState('');
   const [pasteNotice, setPasteNotice] = useState<string | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const routing = useMemo(() => detectFilesRouting(detectedFiles), [detectedFiles]);
 
@@ -552,8 +557,22 @@ export const StageADiscover: React.FC<StageADiscoverProps> = ({
           </a>
           <span className="text-[#C5CBD3]">·</span>
           <span>© {new Date().getFullYear()} Barnik Basu. All rights reserved.</span>
+          <span className="text-[#C5CBD3]">·</span>
+          <button
+            type="button"
+            onClick={() => setFeedbackOpen(true)}
+            className="font-medium text-[#17191D] hover:text-[#1D4ED8] transition-colors underline decoration-[#C5CBD3] hover:decoration-[#1D4ED8] underline-offset-2 cursor-pointer"
+          >
+            Send Feedback
+          </button>
         </div>
       </footer>
+
+      {feedbackOpen && (
+        <Suspense fallback={null}>
+          <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
+        </Suspense>
+      )}
     </div>
   );
 };

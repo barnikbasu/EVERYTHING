@@ -1,4 +1,3 @@
-import { PDFDocument } from 'pdf-lib';
 import { dataUrlToArrayBuffer, fileToCanvas } from '../utils/mediaUtils';
 
 export interface ImageAdjustments {
@@ -571,6 +570,7 @@ export async function generatePassportSheet(
 
   let blob: Blob;
   if (outputFormat === 'application/pdf') {
+    const { PDFDocument } = await import('pdf-lib');
     const imgUrl = canvas.toDataURL('image/png');
     const imgBytes = dataUrlToArrayBuffer(imgUrl);
     const pdfDoc = await PDFDocument.create();

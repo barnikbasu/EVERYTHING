@@ -1,5 +1,6 @@
 import { gzip, ungzip } from 'pako';
 import JSZip from 'jszip';
+import { sanitizeArchivePath } from '../../utils/sanitize';
 
 export interface ArchiveEntryData {
   path: string;
@@ -212,7 +213,7 @@ export function packTarArchive(entries: ArchiveEntryData[]): Uint8Array {
 
   for (const entry of entries) {
     const header = new Uint8Array(512);
-    const cleanName = entry.path.replace(/^\/+/, '').slice(0, 99);
+    const cleanName = sanitizeArchivePath(entry.path).slice(0, 99);
     writeAscii(header, 0, 100, cleanName);
     writeOctal(header, 100, 8, 0o644); // mode
     writeOctal(header, 108, 8, 0); // uid
@@ -283,7 +284,7 @@ export function unpackTarArchive(tarBytes: Uint8Array): ArchiveEntryData[] {
 
     if (typeFlag === '0' || typeFlag === '\0') {
       entries.push({
-        path: fullPath,
+        path: sanitizeArchivePath(fullPath),
         data: tarBytes.slice(offset, offset + size),
       });
     }
@@ -310,10 +311,10 @@ export function gunzipBytes(input: Uint8Array): Uint8Array {
 export async function readZipEntries(zipBytes: ArrayBuffer | Uint8Array): Promise<ArchiveEntryData[]> {
   const zip = await JSZip.loadAsync(zipBytes);
   const entries: ArchiveEntryData[] = [];
-  for (const [path, obj] of Object.entries(zip.files)) {
+  for (const [rawPath, obj] of Object.entries(zip.files)) {
     if (obj.dir) continue;
     const data = await obj.async('uint8array');
-    entries.push({ path, data });
+    entries.push({ path: sanitizeArchivePath(rawPath), data });
   }
   return entries;
 }
@@ -321,7 +322,7 @@ export async function readZipEntries(zipBytes: ArrayBuffer | Uint8Array): Promis
 export async function writeZipEntries(entries: ArchiveEntryData[]): Promise<Uint8Array> {
   const zip = new JSZip();
   for (const e of entries) {
-    zip.file(e.path, e.data);
+    zip.file(sanitizeArchivePath(e.path), e.data);
   }
   return zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE', compressionOptions: { level: 6 } });
 }
