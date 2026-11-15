@@ -2,7 +2,8 @@
   "name": "everything-workspace",
   "private": true,
   "version": "1.0.0",
-  "license": "Apache-2.0",
+  "license": "UNLICENSED",
+  "author": "Barnik Basu",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",

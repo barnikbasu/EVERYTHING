@@ -2,6 +2,11 @@
 
 **Everything you need. One workspace. Your files stay yours.**
 
+- **Creator & Developer**: Barnik Basu ([@barnikbasu](https://github.com/barnikbasu))
+- **Project**: EVERYTHING
+- **Copyright**: © 2026 Barnik Basu. All rights reserved.
+- **License**: Proprietary (See [LICENSE](LICENSE))
+
 EVERYTHING is a complete, production-oriented, privacy-first digital utility workspace that brings essential file processing, document manipulation, media editing, creative creation, developer formatting, and OCR tools into one unified web application.
 
 ---
@@ -75,6 +80,16 @@ npm run build
 
 ---
 
-## License
+## Ownership, Copyright & Licensing
 
-Licensed under the [Apache-2.0 License](LICENSE).
+### Creator & Project Ownership
+EVERYTHING is designed, architected, and developed by **Barnik Basu**.
+
+### Copyright Notice
+© 2026 Barnik Basu. All rights reserved.
+
+### Proprietary License
+All original source code, graphic designs, user interfaces, schemas, documentation, and architecture in this repository are proprietary. Reproduction, distribution, modification, or commercial use without prior explicit written permission from the copyright holder is strictly prohibited. Refer to [LICENSE](LICENSE) for details.
+
+### Third-Party Software Acknowledgement
+This software incorporates and relies upon open-source libraries, packages, and frameworks. All third-party dependencies (such as React, Vite, Tailwind CSS, Lucide Icons, pdf-lib, pdfjs-dist, SheetJS, Tesseract.js, JSZip, and pako) remain the intellectual property of their respective authors and are governed by their respective open-source licenses (MIT, Apache-2.0, BSD, etc.). Nothing in this repository claims ownership of third-party intellectual property or modifies third-party licensing terms.

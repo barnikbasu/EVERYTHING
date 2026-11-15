@@ -534,13 +534,24 @@ export const StageADiscover: React.FC<StageADiscoverProps> = ({
       </section>
 
       {/* Clean Footer */}
-      <footer className="pt-4 pb-8 border-t border-[#E2E5EC] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#717782]">
-        <div className="flex items-center gap-3">
-          <span className="font-bold text-[#17191D]">EVERYTHING</span>
+      <footer className="pt-6 pb-12 border-t border-[#E2E5EC] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#717782]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <span className="font-bold tracking-tight text-[#17191D]">EVERYTHING</span>
+          <span className="hidden sm:inline text-[#C5CBD3]">·</span>
           <span>Everything you need. One workspace. Your files stay yours.</span>
         </div>
-        <div className="font-mono text-[11px]">
-          Local-first workspace · Optional cloud AI requires explicit consent
+        <div className="flex items-center gap-1.5 flex-wrap font-sans text-xs">
+          <span>Created & Developed by</span>
+          <a
+            href="https://github.com/barnikbasu"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-[#17191D] hover:text-[#1D4ED8] transition-colors underline decoration-[#C5CBD3] hover:decoration-[#1D4ED8] underline-offset-2"
+          >
+            Barnik Basu
+          </a>
+          <span className="text-[#C5CBD3]">·</span>
+          <span>© {new Date().getFullYear()} Barnik Basu. All rights reserved.</span>
         </div>
       </footer>
     </div>

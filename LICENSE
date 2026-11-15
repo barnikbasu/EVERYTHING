@@ -1,8 +1,36 @@
-Apache License
-Version 2.0, January 2004
-http://www.apache.org/licenses/
+Copyright (c) 2026 Barnik Basu. All rights reserved.
 
-TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+EVERYTHING
+Creator & Lead Developer: Barnik Basu
 
-1. Definitions.
-...
+===============================================================================
+PROPRIETARY & ALL RIGHTS RESERVED
+===============================================================================
+
+All original source code, graphic designs, interfaces, schemas, documentation, 
+and architecture contained within this repository are the exclusive proprietary 
+property of Barnik Basu.
+
+Copyright (c) 2026 Barnik Basu. All rights reserved.
+
+No part of this software, original source code, or associated documentation 
+may be reproduced, distributed, sublicensed, modified, published, or transmitted 
+in any form or by any means—electronic, mechanical, photocopying, recording, 
+or otherwise—without prior express written permission from the copyright holder.
+
+===============================================================================
+THIRD-PARTY LICENSES & ACKNOWLEDGEMENTS
+===============================================================================
+
+This software incorporates and relies upon third-party open-source libraries, 
+frameworks, fonts, and assets. Each third-party dependency remains the 
+intellectual property of its respective authors and copyright holders and is 
+governed by its own applicable open-source license (such as MIT, Apache-2.0, 
+BSD, or ISC).
+
+Nothing in this proprietary notice claims ownership of, or restricts rights 
+granted by, the respective licenses of third-party software dependencies used 
+in this project.
+
+Refer to `package.json` for a comprehensive list of runtime and development 
+dependencies.
